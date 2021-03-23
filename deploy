@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if ! [ -e .env ]; then
+	echo "ERROR: no environment file found"
+	exit
+fi
+
+source .env
+echo "Creating a vm for $APP_NAME..."
+
+VM=$(multipass list | grep $APP_NAME)
+if ! [[ $VM == "" ]]; then
+	echo "Removing previous instance of $APP_NAME..."
+
+	multipass delete $APP_NAME
+	multipass purge
+
+	output=( $VM )
+	IP=${output[2]}
+	sudo hosts $IP remove $APP_DOMAIN
+	echo "done."
+fi
+
+if ! [ -e etc/$APP_DOMAIN.pem ]; then
+	mkdir -p etc && cd etc
+	echo "Signing new SSL certificates for local development or network..."
+	mkcert $APP_DOMAIN
+	echo "done."
+	cd ..
+fi
+
+multipass launch -n $APP_NAME --cloud-init init.yaml
+multipass mount . $APP_NAME:$APP_DIR
+multipass exec $APP_NAME -- $APP_DIR/bin/init $APP_DIR
+
+IP=( $(multipass exec $APP_NAME -- hostname -I) )
+#multipass shell $APP_NAME

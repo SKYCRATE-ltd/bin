@@ -1,0 +1,8 @@
+#!/bin/bash
+
+IFS='/' read -ra path <<< "$1"
+LAST=""
+for i in "${path[@]}"; do
+	LAST=$i
+done
+echo $LAST

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+ln -s $1 /var/www/$1
+
+sudo hosts ${IP[0]} add $APP_DOMAIN

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TYPE=$1
+OUT=$2
+CONTENT=
+
+if [[ $OUT == "" ]]; then
+	OUT=$TYPE
+	TYPE=bash
+elif [[ $TYPE == "node" ]]; then
+	TYPE="env node"
+	CONTENT="const \$ = process.argv.slice(2);"
+	OUT="$OUT.js"
+elif [[ $TYPE == "ui" ]]; then
+	TYPE=bash
+	CONTENT="source "
+fi
+
+CRUNCH="#!/bin/$TYPE"
+
+cat > $OUT <<EOM
+$(echo -e $CRUNCH)
+
+$(echo -e $CONTENT)
+EOM
+chmod +x $OUT

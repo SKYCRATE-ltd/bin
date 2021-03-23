@@ -1,0 +1,38 @@
+#!/bin/bash
+
+function dir-name {
+	IFS='/' read -ra path <<< $1
+	len=${#path[@]}
+	echo ${path[((len-1))]}
+}
+
+function up {
+
+}
+
+function down {
+
+}
+
+function list {
+	# List everything in the directory....
+}
+
+DIR=${1:-"."}
+
+if [[ $DIR == "." ]]; then
+	DIR=$(pwd)
+fi
+
+DOMAIN=$(dir-name $DIR)
+TARGET=/var/www/$DOMAIN
+# We can source the .env thingy if we need to...
+
+cd $DIR # <-- do the dirname thing here...
+if [ -e $TARGET ]; then
+	sudo rm -rf $TARGET
+fi
+sudo ln -s . $TARGET
+sudo ln etc/$DOMAIN /etc/nginx/sites-enabled/$DOMAIN
+sudo hosts 127.0.0.1 add $DOMAIN
+sudo nginx -s reload

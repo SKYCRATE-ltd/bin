@@ -1,0 +1,21 @@
+#!/bin/bash
+
+function fetch {
+	echo "----------------------------------------"
+	echo $(pwd)
+	echo
+	echo "Pulling from git repository..."
+	git pull
+	echo "Updating node modules..."
+	npm i
+}
+
+if [[ $(pwd) == $HOME/src ]]; then
+	for dir in $(ls .); do
+		if [ -e $dir/.git ]; then
+			cd $dir && fetch && cd ..
+		fi
+	done
+else
+	fetch
+fi

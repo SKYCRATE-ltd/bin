@@ -1,0 +1,4 @@
+#!/bin/bash
+
+URI=$(curl -s https://api.myip.com/)
+public-ip.js "$URI"

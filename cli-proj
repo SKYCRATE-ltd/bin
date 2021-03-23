@@ -1,0 +1,10 @@
+#!/bin/bash
+
+composer create-project --prefer-dist laravel-zero/laravel-zero $1
+cd $1 && php application app:rename $1
+
+php $1 app:install log
+php $1 app:install dotenv
+#php $1 app:install menu
+php $1 app:install logo
+php $1 app:install http

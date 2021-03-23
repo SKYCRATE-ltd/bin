@@ -1,0 +1,96 @@
+#!/bin/bash
+
+NBSP="\u00a0"
+DIR=$1
+
+function dir-name {
+	IFS='/' read -ra path <<< $1
+	len=${#path[@]}
+	echo ${path[((len-1))]}
+}
+
+function prompt {
+	local message=$1 && shift
+	local default=$1
+	local options=""
+	if [[ ! $default == "" ]]; then
+		shift
+		options=$default
+		for param in $@; do
+			options="$options|$param"
+		done
+	fi
+	message="$message ($options)➤$NBSP"
+
+	read -p "$(echo -ne $message)" response
+	echo ${response:-$default}
+}
+
+function confirm {
+	local message=$1
+	local err=$2
+	if [[ $err == "" ]]; then
+		err="Please provide a yes or no answer...\n"
+	fi
+	while true; do
+		local response=$(prompt "$message" Y n)
+
+		case $response in
+			[yY]* )
+				echo "✔ approved."
+				return 0
+				;;
+			[nN]* )
+				echo "✘ denied."
+				return 1
+				;;
+			* )
+				echo $err
+				;;
+		esac
+	done
+}
+
+cd $DIR
+
+if ! [ -e .env ]; then
+	echo "ERROR: no environment file found"
+	exit
+fi
+
+source .env
+echo "Creating a vm for $APP_NAME..."
+
+VM=$(multipass list | grep $APP_NAME)
+if ! [[ $VM == "" ]]; then
+	echo "Removing previous instance of $APP_NAME..."
+
+	multipass delete $APP_NAME
+	multipass purge
+
+	output=( $VM )
+	IP=${output[2]}
+	sudo hosts $IP remove $APP_DOMAIN
+	echo "done."
+fi
+
+if ! [ -e etc/$APP_DOMAIN.pem ]; then
+	mkdir -p etc && cd etc
+	echo "Signing new SSL certificates for local development or network..."
+	mkcert $APP_DOMAIN
+	echo "done."
+	cd ..
+fi
+
+multipass launch -n $APP_NAME --cloud-init init.yaml
+multipass mount . $APP_NAME:$APP_DIR
+multipass exec $APP_NAME -- $APP_DIR/bin/init $APP_DIR
+
+IP=( $(multipass exec $APP_NAME -- hostname -I) )
+# if confirm "Add $APP_NAME: $IP <= $APP_DOMAIN to client's hosts file?"; then
+	echo "== DEV HOSTS FILE ======================"
+	sudo hosts ${IP[0]} add $APP_DOMAIN
+	echo "========================================"
+# fi
+echo "❤ DONE."
+# multipass shell $APP_NAME

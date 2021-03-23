@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [[ $1 == "" ]]; then
+	echo "ERROR: Nae comment nae push, mate"
+	exit 1
+fi
+
+function submit {
+	echo "----------------------------------------"
+	echo $(pwd)
+	echo
+	if commit "$1"; then
+		echo "--> Pushing repo upstream -->"
+		echo "***"
+		echo
+		git push
+	fi
+}
+
+if [[ $(pwd) == $HOME/src ]]; then
+	for dir in $(ls .); do
+		if [ -e $dir/.git ]; then
+			cd $dir
+			submit "$1"
+			cd ..
+		fi
+	done
+else
+	submit "$1"
+fi

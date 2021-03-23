@@ -1,0 +1,24 @@
+#!/bin/bash
+
+COMMAND="git config"
+USER=""
+EMAIL=""
+
+count=0
+for arg in "$@"; do
+	if [[ $arg == "--global" ]] || [[ $arg == "-g" ]]; then
+		COMMAND="$COMMAND --global"
+	else
+		if [ $count -eq 0 ]; then
+			USER=$arg
+		else
+			EMAIL=$arg
+		fi
+		let count++
+	fi
+done
+
+$COMMAND user.name "$USER"
+$COMMAND user.email "$EMAIL"
+#$COMMAND pull.rebase false
+git config --list

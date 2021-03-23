@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo code $1 --user-data-dir /root

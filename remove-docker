@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Disabling docker services..."
+sudo systemctl disable docker.service
+sudo systemctl disable containerd.service
+
+echo "Deleting user group and its users..."
+sudo deluser $USER postgres
+sudo groupdel docker
+
+echo "Removing docker software packages..."
+sudo apt remove docker docker-engine docker.io containerd runc
+sudo apt update
+
+echo "Done!"

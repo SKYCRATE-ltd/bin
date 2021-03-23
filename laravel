@@ -1,0 +1,88 @@
+#!/bin/bash
+
+DOMAIN=$1
+PLATFORM=$(platform.js)
+
+composer create-project laravel/laravel $DOMAIN
+
+cd $DOMAIN && git init
+touch database/database.sqlite
+# chown www-data.www-data database/database.sqlite
+# chown -R www-data.www-data storage
+# chown -R www-data.www-data bootstrap/cache
+
+cat > .env <<EOM
+APP_NAME=$DOMAIN
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_DOMAIN=$DOMAIN
+APP_URL=https://$DOMAIN
+
+APP_DIR=/var/www/$DOMAIN
+APP_BIN=/var/www/$DOMAIN/bin
+
+APP_PLATFORM=$PLATFORM
+
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+
+DB_CONNECTION=sqlite
+DB_DATABASE=${APP_DIR}/database/database.sqlite
+DB_FOREIGN_KEYS=true
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+EOM
+
+php artisan key:generate
+if ! [ -e etc ]; then mkdir etc; fi
+cd etc
+mkcert $DOMAIN
+
+cat > $DOMAIN <<EOF
+server {
+	# Allow for https?
+	server_name $DOMAIN;
+	listen 443 ssl;
+
+	ssl_certificate /var/www/$DOMAIN/etc/$DOMAIN.pem;
+	ssl_certificate_key /var/www/$DOMAIN/etc/$DOMAIN-key.pem;
+
+	root /var/www/$DOMAIN/public;
+	index index.php;
+	charset utf-8;
+	error_page 404 /index.php;
+
+	location / {
+		try_files \$uri \$uri/ /index.php?\$query_string;
+	}
+
+	location ~ \.php\$ {
+		fastcgi_pass unix:/var/run/php/php-fpm.sock;
+		fastcgi_index index.php;
+		fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+		include fastcgi_params;
+	}
+}
+
+server {
+	if (\$host = $DOMAIN) {
+		return 301 https://\$host\$request_uri;
+	}
+
+	server_name $DOMAIN;
+	listen 80;
+	return 404;
+}
+EOF
+

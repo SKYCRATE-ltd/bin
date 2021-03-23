@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [[ $1 == "" ]]; then
+	ls node_modules/
+	exit;
+fi
+
+function add {
+	npm add $1
+}
+
+function pull {
+	if [ -e package-lock.json ]; then
+		rm package-lock.json
+	fi
+	if [ -e node_modules ]; then
+		rm -rf node_modules
+	fi
+	npm i
+}
+
+$1 $2
