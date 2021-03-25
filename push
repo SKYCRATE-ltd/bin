@@ -17,7 +17,7 @@ function submit {
 	fi
 }
 
-if [[ $(pwd) == $HOME/src ]]; then
+if ! [ -e $(pwd)/.git ]; then
 	for dir in $(ls .); do
 		if [ -e $dir/.git ]; then
 			cd $dir
