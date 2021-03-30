@@ -1,8 +1,12 @@
 #!/bin/bash
 
 REPO=$1
+if ! [[ $REPO == */* ]]; then
+	# There's nae slash. There must be slash.
+	REPO=SKYCRATE-ltd/$REPO
+fi
 OUT=${2:-$(pop-path $REPO)}
-git clone git@github.com:SKYCRATE-ltd/$REPO.git $OUT
+git clone git@github.com:$REPO.git $OUT
 cd $OUT
 if [ -e package.json ]; then
 	npm i

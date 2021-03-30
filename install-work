@@ -1,0 +1,22 @@
+#!/bin/bash
+
+DEST=${1:-"$HOME/skycrate-src"}
+cd $DEST
+
+function installer {
+	project=$1
+	if ! [ -e ./$project ]; then
+		clone $project
+	fi
+	cd ./$project
+	if [ -e ./package.json ]; then
+		npm i
+	fi
+	cd ../
+}
+
+PROJECTS=( "crux computer config jst zed maths zui YAB DNS srvr surf" )
+
+for proj in $PROJECTS; do
+	installer $proj
+done
