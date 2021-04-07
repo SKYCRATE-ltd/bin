@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/SKYCRATE-ltd/bin/issues"
   },
-  "homepage": "https://github.com/SKYCRATE-ltd/bin#readme"
+  "homepage": "https://github.com/SKYCRATE-ltd/bin#readme",
+  "dependencies": {
+    "computer": "github:SKYCRATE-ltd/computer"
+  }
 }
