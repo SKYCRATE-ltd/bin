@@ -1,22 +1,29 @@
 #!/bin/bash
 
-if [[ $1 == "" ]]; then
-	ls node_modules/
+CMD=$1
+shift
+
+if [[ $CMD == "" ]]; then
+	if ! [ -e node_modules/ ]; then
+		echo "No packages installed, buddo."
+	else
+		ls node_modules/
+	fi
 	exit;
 fi
 
 function add {
-	npm add $1
+	npm add $@
 }
 
 function pull {
 	if [ -e package-lock.json ]; then
 		rm package-lock.json
 	fi
-	if [ -e node_modules ]; then
-		rm -rf node_modules
+	if [ -e node_modules/$1 ]; then
+		rm -rf node_modules/$1
 	fi
-	npm i
+	npm i $1
 }
 
-$1 $2
+$CMD $@
