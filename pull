@@ -5,10 +5,12 @@ function fetch {
 	echo $(pwd)
 	echo
 	echo "Pulling from git repository..."
-	git pull
-	echo "Updating node modules..."
-	#npm i
-	pkgs pull
+	output=`git pull`
+	echo $output
+	if ! [[ $output == "Already up-to-date." ]]; then
+		echo "Updating node modules..."
+		pkgs pull
+	fi
 }
 
 if ! [ -e $(pwd)/.git ]; then
