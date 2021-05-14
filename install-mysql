@@ -1,0 +1,5 @@
+#!/bin/bash
+
+apt install mysql-server -y
+systemctl enable mysql
+mysql_secure_installation

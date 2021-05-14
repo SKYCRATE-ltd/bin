@@ -16,7 +16,7 @@ elif [[ $TYPE == "ui" ]]; then
 	CONTENT="source "
 fi
 
-CRUNCH="#!/bin/$TYPE"
+CRUNCH="#!/usr/bin/$TYPE"
 
 cat > $OUT <<EOM
 $(echo -e $CRUNCH)
